@@ -1,17 +1,39 @@
 package conf
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"os"
+
+	"github.com/ncrypt96/gena/constants"
+)
 
 type Config struct {
-	ExcludeDirectories []string `json:"excludeDirectories,omitempty"`
-	ExcludeFormats     []string `sjson:"excludeFormats,omitempty"`
+	Variables map[string]string `json:"variables"`
+	AddGit    bool              `json:"addGit"`
+	Postgen   string            `json:"postgen"`
 }
 
-func (c *Config) UnmarshalJSON(j []byte) (*Config, error) {
-	var genConfig Config
-	err := json.Unmarshal(j, &genConfig)
+func NewConfig() *Config {
+	return new(Config)
+}
+
+func (c *Config) UnmarshalConfig(j []byte) error {
+	return json.Unmarshal(j, &c)
+}
+
+func (c *Config) GetConfigAsBytes(f string) ([]byte, error) {
+	cf, err := os.Open(fmt.Sprintf("./%s/%s", f, constants.ConfFileName))
 	if err != nil {
-		panic(err)
+		if os.IsNotExist(err) {
+			return nil, fmt.Errorf("The repository is not a valid Gena repository \n \t The repository must have a valid %s at the root of the repository", constants.ConfFileName)
+		}
+		return nil, err
 	}
-	return &genConfig, nil
+	b, err := ioutil.ReadAll(cf)
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
 }
