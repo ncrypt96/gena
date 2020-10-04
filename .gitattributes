@@ -1,4 +1,4 @@
-t all files in the Go repo as binary, with no git magic updating
+# all files in the Go repo as binary, with no git magic updating
 
 # line endings. This produces predictable results in different environments.
 
